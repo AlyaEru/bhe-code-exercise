@@ -1,6 +1,9 @@
 package sieve
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Sieve interface {
 	NthPrime(n int64) int64
@@ -18,13 +21,23 @@ func NewSieve() Sieve {
 }
 
 func (s SieveData) NthPrime(n int64) int64 {
-	// TODO: more intelligent cap
-	s.sieveToCap(10_000)
+	if n < 0 {
+		// I prefer logging to panicking for easier debugging...
+		// (if the interface supported it, I'd return an error)
+		fmt.Println("failure - n cannot be negative")
+		return 0
+	} else if n < 6 {
+		s.sieveToCap(10_000)
+	} else {
+		// per [Wikipedia](https://en.wikipedia.org/wiki/Prime_number_theorem), this function
+		// gives an upper bound for the nth prime for all n >= 6
+		s.sieveToCap(int64(math.Ceil(float64(n) * (math.Log(float64(n)) + math.Log(math.Log(float64(n)))))))
+	}
 
 	if int64(len(s.primes)) > n { // _should_ always be true
 		return s.primes[n]
 	} else {
-		fmt.Println("failure - did not generate enough primes") // prefer logging to panicking for easier debugging...
+		fmt.Println("failure - did not generate enough primes")
 		return 0
 	}
 }
