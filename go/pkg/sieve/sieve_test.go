@@ -3,16 +3,34 @@ package sieve
 import (
 	"math/big"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNthPrime(t *testing.T) {
+	t.Run("additional custom checks", func(t *testing.T) {
+		// negative number
+		sieve := NewSieve()
+		assert.Equal(t, int64(0), sieve.NthPrime(-6))
+
+		// large prime doesn't take too long
+		// (timing could vary depending where this test is running,
+		// but we want _some_ kind of benchmarking)
+		start := time.Now()
+		sieve.NthPrime(10_000_000)
+		elapsed := time.Since(start)
+		assert.Less(t, elapsed, time.Second*3)
+
+		// Sieve caches primes: running on smaller n is very fast
+		start = time.Now()
+		sieve.NthPrime(9_999_999)
+		elapsed = time.Since(start)
+		assert.Less(t, elapsed, time.Millisecond*100)
+
+	})
+
 	sieve := NewSieve()
-
-	assert.Equal(t, int64(0), sieve.NthPrime(-6))
-
-	// required tests
 	assert.Equal(t, int64(2), sieve.NthPrime(0))
 	assert.Equal(t, int64(3), sieve.NthPrime(1))
 	assert.Equal(t, int64(71), sieve.NthPrime(19))

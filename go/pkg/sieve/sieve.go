@@ -15,18 +15,22 @@ type SieveData struct {
 }
 
 func NewSieve() Sieve {
-	return SieveData{
+	return &SieveData{
 		[]int64{2},
 	}
 }
 
-func (s SieveData) NthPrime(n int64) int64 {
+func (s *SieveData) NthPrime(n int64) int64 {
 	if n < 0 {
 		// I prefer logging to panicking for easier debugging...
 		// (if the interface supported it, I'd return an error)
 		fmt.Println("failure - n cannot be negative")
 		return 0
-	} else if n < 6 {
+	} else if n < int64(len(s.primes)) { // use cache
+		return s.primes[n]
+	}
+
+	if n < 6 {
 		s.sieveToCap(10_000)
 	} else {
 		// per [Wikipedia](https://en.wikipedia.org/wiki/Prime_number_theorem), this function
@@ -59,7 +63,7 @@ func (s *SieveData) sieveToCap(cap int64) {
 	}
 
 	//  then start catching new primes
-	for i := int64(3); i <= cap; i++ {
+	for i := s.primes[len(s.primes)-1] + 1; i <= cap; i++ {
 		if isPrime[i] {
 			nextPrime := i
 			s.primes = append(s.primes, nextPrime)
