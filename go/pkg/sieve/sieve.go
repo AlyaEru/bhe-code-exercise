@@ -20,6 +20,7 @@ func NewSieve() Sieve {
 	}
 }
 
+// NthPrime returns the nth prime or returns 0 on unexpected input or error
 func (s *SieveData) NthPrime(n int64) int64 {
 	if n < 0 {
 		// I prefer logging to panicking for easier debugging...
