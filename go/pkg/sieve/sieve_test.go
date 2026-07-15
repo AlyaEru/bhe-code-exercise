@@ -9,14 +9,12 @@ import (
 )
 
 func TestNthPrime(t *testing.T) {
-	t.Run("additional custom checks", func(t *testing.T) {
-		// negative number
-		sieve := NewSieve()
-		assert.Equal(t, int64(0), sieve.NthPrime(-6))
-
+	t.Run("timing tests", func(t *testing.T) {
 		// large prime doesn't take too long
 		// (timing could vary depending where this test is running,
 		// but we want _some_ kind of benchmarking)
+		sieve := NewSieve()
+
 		start := time.Now()
 		sieve.NthPrime(10_000_000)
 		elapsed := time.Since(start)
@@ -30,17 +28,29 @@ func TestNthPrime(t *testing.T) {
 
 	})
 
-	sieve := NewSieve()
-	assert.Equal(t, int64(2), sieve.NthPrime(0))
-	assert.Equal(t, int64(3), sieve.NthPrime(1))
-	assert.Equal(t, int64(71), sieve.NthPrime(19))
-	assert.Equal(t, int64(541), sieve.NthPrime(99))
-	assert.Equal(t, int64(3_581), sieve.NthPrime(500))
-	assert.Equal(t, int64(7_793), sieve.NthPrime(986))
-	assert.Equal(t, int64(17_393), sieve.NthPrime(2_000))
-	assert.Equal(t, int64(15_485_867), sieve.NthPrime(1_000_000))
-	assert.Equal(t, int64(179_424_691), sieve.NthPrime(10_000_000))
-	assert.Equal(t, int64(2_038_074_751), sieve.NthPrime(100_000_000)) // not required, just a fun challenge
+	t.Run("value tests", func(t *testing.T) {
+		cases := []struct {
+			input    int64
+			expected int64
+		}{
+			{input: -6, expected: 0},
+			{input: 0, expected: 2},
+			{input: 1, expected: 3},
+			{input: 19, expected: 71},
+			{input: 99, expected: 541},
+			{input: 500, expected: 3_581},
+			{input: 986, expected: 7_793},
+			{input: 2_000, expected: 17_393},
+			{input: 1_000_000, expected: 15_485_867},
+			{input: 10_000_000, expected: 179_424_691},
+			// { input: 100_000_000, expected: 2_038_074_751}, // this works but takes a bit
+		}
+
+		sieve := NewSieve()
+		for _, cc := range cases {
+			assert.Equal(t, cc.expected, sieve.NthPrime(cc.input))
+		}
+	})
 }
 
 func FuzzNthPrime(f *testing.F) {
